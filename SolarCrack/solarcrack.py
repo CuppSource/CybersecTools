@@ -2,6 +2,8 @@ import subprocess
 import os
 import sys
 import platform
+### READ USAGE.md FOR HELP ####
+
 
 # Function to attempt password cracking
 def crack_password(decryptor_path, session_file, wordlist_file):
