@@ -1,22 +1,34 @@
 import subprocess
 import os
 import sys
+import platform
 
 # Function to attempt password cracking
 def crack_password(decryptor_path, session_file, wordlist_file):
+    # Detect if the current system is Windows or not
+    is_windows = platform.system() == "Windows"
+
     # Open the password file and try each password
     with open(wordlist_file, 'r', encoding='latin-1') as f:
         for password in f:
             password = password.strip()  # Remove any newlines or extra spaces
             print(f"Trying password: {password}")
             
-            # Run the decryptor with the current password
-            result = subprocess.run([decryptor_path, session_file, password], capture_output=True, text=True)
+            # Construct the command to run depending on the OS
+            if is_windows:
+                # Run directly on Windows
+                result = subprocess.run([decryptor_path, session_file, password], capture_output=True, text=True)
+            else:
+                # Use Wine on non-Windows OS
+                result = subprocess.run(['wine', decryptor_path, session_file, password], capture_output=True, text=True)
             
             # Check if the command was successful
             if result.returncode == 0:
                 print(f"Correct password found: {password}\n")
-                os.system(f'{decryptor_path} {session_file} {password}')
+                if is_windows:
+                    os.system(f'{decryptor_path} {session_file} {password}')
+                else:
+                    os.system(f'wine {decryptor_path} {session_file} {password}')
                 break
             else:
                 print(f"Failed with password: {password}")
